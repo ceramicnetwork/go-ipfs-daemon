@@ -1,8 +1,10 @@
 # go-ipfs-daemon
 
+**WIP**
+
 This repo builds a Docker image that runs a [js-ceramic](https://github.com/ceramicnetwork/js-ceramic) compatible version of [go-ipfs](https://github.com/ipfs/go-ipfs).
 
-The go-ipfs daemon that this image runs supports resolving dag-jose objects and using S3 for a datastore with sharding.
+The go-ipfs daemon that this image runs supports resolving dag-jose objects, using S3 for a sharded datastore, and serving a healthcheck endpoint.
 
 ## Usage
 
@@ -15,6 +17,7 @@ docker build . -t go-ipfs-daemon
 
 # Fill in your credentials below
 docker run \
+  -p 8011:8011
   -e IPFS_ENABLE_S3=true \
   -e IPFS_S3_REGION= \
   -e IPFS_S3_BUCKET_NAME= \

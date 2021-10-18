@@ -20,15 +20,13 @@ ENV SRC_DIR /go-ipfs
 COPY --from=clone /clone/go-ipfs/go.mod /clone/go-ipfs/go.sum $SRC_DIR/
 COPY --from=clone /clone/go-ipfs $SRC_DIR
 
-# RUN cd $SRC_DIR \
-#   && go mod edit -replace \
-#   github.com/ipfs/go-ds-s3=github.com/obo20/go-ds-s3@v0.7.0
-
 RUN cd $SRC_DIR \
+  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@latest \
   && go get github.com/3box/go-ds-s3/plugin@v0.7.0-test-1 \
   && go get github.com/cheggaaa/pb@v1.0.29
 
 RUN cd $SRC_DIR \
+  && echo "\nhealthcheck github.com/ceramicnetwork/go-ipfs-healthcheck/plugin 0" >> plugin/loader/preload_list \
   && echo "\ns3ds github.com/3box/go-ds-s3/plugin 0" >> plugin/loader/preload_list
 
 RUN cd $SRC_DIR && go mod download
@@ -97,6 +95,8 @@ EXPOSE 5001
 EXPOSE 8080
 # Swarm Websockets; must be exposed publicly when the node is listening using the websocket transport (/ipX/.../tcp/8081/ws).
 EXPOSE 8081
+# Healthcheck Server; can be exposed to services under your control
+EXPOSE 8011
 
 # Create the fs-repo directory and switch to a non-privileged user.
 ENV IPFS_PATH /data/ipfs

@@ -48,7 +48,7 @@ jobs:
       -
         name: Build and push
         env:
-          IMAGE_ID_1: "ceramicnetwork/js-ceramic"
+          IMAGE_ID_1: "ceramicnetwork/go-ipfs-daemon"
         run: |
           EXTRA_TAGS=""
           if [[ "${{ env.ENV_TAG }}" == "prod" ]]; then
@@ -60,4 +60,3 @@ jobs:
             --tag $IMAGE_ID_1:${{ github.sha }}  \
             --tag $IMAGE_ID_1:${{ env.BRANCH }}  \
             $EXTRA_TAGS
-

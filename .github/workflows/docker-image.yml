@@ -63,7 +63,7 @@ jobs:
         name: Build and push
         env:
           IMAGE_ID_1: "ceramicnetwork/go-ipfs-daemon"
-          IMAGE_ID_2: "${{ steps.login-ecr.outputs.registry }}/ceramic-${{ env.ENV_TAG }}"
+          IMAGE_ID_2: "${{ steps.login-ecr.outputs.registry }}/go-ipfs-${{ env.ENV_TAG }}"
         run: |
           EXTRA_TAGS=""
           if [[ "${{ env.ENV_TAG }}" == "prod" ]]; then

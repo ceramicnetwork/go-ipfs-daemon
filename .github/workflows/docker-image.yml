@@ -46,17 +46,36 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
+        name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      -
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
         name: Build and push
         env:
           IMAGE_ID_1: "ceramicnetwork/go-ipfs-daemon"
+          IMAGE_ID_2: "${{ steps.login-ecr.outputs.registry }}/ceramic-${{ env.ENV_TAG }}"
         run: |
           EXTRA_TAGS=""
           if [[ "${{ env.ENV_TAG }}" == "prod" ]]; then
-            EXTRA_TAGS="--tag $IMAGE_ID_1:latest"
+            EXTRA_TAGS="--tag $IMAGE_ID_1:latest --tag $IMAGE_ID_2:latest"
           fi
           docker buildx build . --file Dockerfile --output 'type=image,push=true' \
             --tag $IMAGE_ID_1:${{ env.ENV_TAG }} \
             --tag $IMAGE_ID_1:${{ env.SHA_TAG }} \
             --tag $IMAGE_ID_1:${{ github.sha }}  \
             --tag $IMAGE_ID_1:${{ env.BRANCH }}  \
+            --tag $IMAGE_ID_2:${{ env.ENV_TAG }} \
+            --tag $IMAGE_ID_2:${{ env.SHA_TAG }} \
+            --tag $IMAGE_ID_2:${{ github.sha }}  \
+            --tag $IMAGE_ID_2:${{ env.BRANCH }}  \
             $EXTRA_TAGS

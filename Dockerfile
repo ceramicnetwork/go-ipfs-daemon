@@ -21,8 +21,8 @@ COPY --from=clone /clone/go-ipfs/go.mod /clone/go-ipfs/go.sum $SRC_DIR/
 COPY --from=clone /clone/go-ipfs $SRC_DIR
 
 RUN cd $SRC_DIR \
-  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@latest \
-  && go get github.com/3box/go-ds-s3/plugin@v0.7.0-test-1 \
+  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.10.0 \
+  && go get github.com/3box/go-ds-s3/plugin@v0.10.0 \
   && go get github.com/cheggaaa/pb@v1.0.29
 
 RUN cd $SRC_DIR \

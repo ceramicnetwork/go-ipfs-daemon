@@ -1,9 +1,9 @@
-# Based on https://github.com/ipfs/go-ipfs/tree/c55fda4d6cbd40150d4432ea9226c5b977fc96f4
+# Based on https://github.com/ipfs/go-ipfs/commit/67220edaaef4a938fe5fba85d793bfee59db3256
 FROM golang:1.16.7-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.10.0 https://github.com/ipfs/go-ipfs
+RUN git clone --depth 1 --branch v0.11.0 https://github.com/ipfs/go-ipfs
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.16.7-buster
@@ -21,15 +21,16 @@ COPY --from=clone /clone/go-ipfs/go.mod /clone/go-ipfs/go.sum $SRC_DIR/
 COPY --from=clone /clone/go-ipfs $SRC_DIR
 
 RUN cd $SRC_DIR \
-  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.10.0 \
-  && go get github.com/3box/go-ds-s3/plugin@v0.10.0 \
+  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.11.0 \
+  && go get github.com/3box/go-ds-s3/plugin@v0.11.0 \
   && go get github.com/cheggaaa/pb@v1.0.29
 
 RUN cd $SRC_DIR \
   && echo "\nhealthcheck github.com/ceramicnetwork/go-ipfs-healthcheck/plugin 0" >> plugin/loader/preload_list \
   && echo "\ns3ds github.com/3box/go-ds-s3/plugin 0" >> plugin/loader/preload_list
 
-RUN cd $SRC_DIR && go mod download
+RUN cd $SRC_DIR \
+  && go mod download
 
 # Preload an in-tree but disabled-by-default plugin by adding it to the IPFS_PLUGINS variable
 # e.g. docker build --build-arg IPFS_PLUGINS="foo bar baz"
@@ -86,17 +87,22 @@ COPY --from=1 /usr/lib/*-linux-gnu*/libssl.so* /usr/lib/
 COPY --from=1 /usr/lib/*-linux-gnu*/libcrypto.so* /usr/lib/
 
 # Swarm TCP; should be exposed to the public
-EXPOSE 4001
+ENV IPFS_SWARM_TCP_PORT 4001
+EXPOSE $IPFS_SWARM_TCP_PORT
 # Swarm UDP; should be exposed to the public
 EXPOSE 4001/udp
 # Daemon API; must not be exposed publicly but to client services under you control
-EXPOSE 5001
+ENV IPFS_API_PORT 5001
+EXPOSE $IPFS_API_PORT
 # Web Gateway; can be exposed publicly with a proxy, e.g. as https://ipfs.example.org
-EXPOSE 8080
+ENV IPFS_GATEWAY_PORT 8080
+EXPOSE $IPFS_GATEWAY_PORT
 # Swarm Websockets; must be exposed publicly when the node is listening using the websocket transport (/ipX/.../tcp/8081/ws).
-EXPOSE 8081
+ENV IPFS_SWARM_WS_PORT 8081
+EXPOSE $IPFS_SWARM_WS_PORT
 # Healthcheck Server; can be exposed to services under your control
-EXPOSE 8011
+ENV IPFS_HEALTHCHECK_PORT 8011
+EXPOSE $IPFS_HEALTHCHECK_PORT
 
 # Create the fs-repo directory and switch to a non-privileged user.
 ENV IPFS_PATH /data/ipfs
@@ -126,7 +132,7 @@ ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/start_ipfs"]
 # Heathcheck for the container
 # QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn is the CID of empty folder
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD ipfs get /ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn || exit 1
+  CMD ipfs dag stat /ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn || exit 1
 
 # Execute the daemon subcommand by default
-CMD ["daemon", "--migrate=true"]
+CMD ["daemon", "--migrate=true", "--agent-version-suffix=docker"]

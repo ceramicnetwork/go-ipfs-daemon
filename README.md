@@ -17,14 +17,21 @@ docker build . -t go-ipfs-daemon
 
 # Fill in your credentials below
 docker run \
-  -p 8011:8011
+  -p 8011:8011 \
+  -p 5001:5001 \
   -e IPFS_ENABLE_S3=true \
   -e IPFS_S3_REGION= \
   -e IPFS_S3_BUCKET_NAME= \
   -e IPFS_S3_ROOT_DIRECTORY= \
   -e IPFS_S3_ACCESS_KEY_ID= \
   -e IPFS_S3_SECRET_ACCESS_KEY= \
+  -e IPFS_S3_KEY_TRANSFORM=next-to-last/2 \
   go-ipfs-daemon
+
+# Get the container id
+docker ps
+# Run ipfs commands
+docker exec -i <container_id> sh -c "ipfs version"
 
 ```
 
@@ -56,7 +63,7 @@ AWS IAM permissions
 
 ## License
 
-The go-ipfs project is dual-licensed under Apache 2.0 and MIT terms:
+Dual-licensed under Apache 2.0 and MIT terms:
 
 - Apache License, Version 2.0, ([LICENSE-APACHE](https://github.com/ipfs/go-ipfs/blob/master/LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
 - MIT license ([LICENSE-MIT](https://github.com/ipfs/go-ipfs/blob/master/LICENSE-MIT) or http://opensource.org/licenses/MIT)

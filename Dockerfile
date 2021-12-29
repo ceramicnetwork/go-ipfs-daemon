@@ -87,17 +87,22 @@ COPY --from=1 /usr/lib/*-linux-gnu*/libssl.so* /usr/lib/
 COPY --from=1 /usr/lib/*-linux-gnu*/libcrypto.so* /usr/lib/
 
 # Swarm TCP; should be exposed to the public
-EXPOSE 4001
+ENV IPFS_SWARM_TCP_PORT 4001
+EXPOSE $IPFS_SWARM_TCP_PORT
 # Swarm UDP; should be exposed to the public
 EXPOSE 4001/udp
 # Daemon API; must not be exposed publicly but to client services under you control
-EXPOSE 5001
+ENV IPFS_API_PORT 5001
+EXPOSE $IPFS_API_PORT
 # Web Gateway; can be exposed publicly with a proxy, e.g. as https://ipfs.example.org
-EXPOSE 8080
+ENV IPFS_GATEWAY_PORT 8080
+EXPOSE $IPFS_GATEWAY_PORT
 # Swarm Websockets; must be exposed publicly when the node is listening using the websocket transport (/ipX/.../tcp/8081/ws).
-EXPOSE 8081
+ENV IPFS_SWARM_WS_PORT 8081
+EXPOSE $IPFS_SWARM_WS_PORT
 # Healthcheck Server; can be exposed to services under your control
-EXPOSE 8011
+ENV IPFS_HEALTHCHECK_PORT 8011
+EXPOSE $IPFS_HEALTHCHECK_PORT
 
 # Create the fs-repo directory and switch to a non-privileged user.
 ENV IPFS_PATH /data/ipfs

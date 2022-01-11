@@ -8,17 +8,38 @@ The go-ipfs daemon that this image runs supports resolving dag-jose objects, usi
 
 ## Usage
 
+Simply pull the image from Dockerhub
+
+```sh
+docker pull ceramicnetwork/go-ipfs-daemon
+```
+
+Or you can download the source code and build the image on your machine
+
 ```sh
 git clone <this_repo_url>
 
 cd go-ipfs-daemon
 
 docker build . -t go-ipfs-daemon
+```
 
+Run a container
+
+```sh
+docker run \
+  -p 5001:5001 \ # API port
+  -p 8011:8011 # Healthcheck port
+  go-ipfs-daemon
+```
+
+You may want to use S3 for the IPFS Blockstore. See the [go-ds-s3 plugin](https://github.com/3box/go-ds-s3#configuration) for more configuration details.
+
+```sh
 # Fill in your credentials below
 docker run \
-  -p 8011:8011 \
-  -p 5001:5001 \
+  -p 5001:5001 \ # API port
+  -p 8011:8011 \ # Healthcheck port
   -e IPFS_ENABLE_S3=true \
   -e IPFS_S3_REGION= \
   -e IPFS_S3_BUCKET_NAME= \
@@ -30,9 +51,9 @@ docker run \
 
 # Get the container id
 docker ps
+
 # Run ipfs commands
 docker exec -i <container_id> sh -c "ipfs version"
-
 ```
 
 AWS IAM permissions
@@ -60,6 +81,10 @@ AWS IAM permissions
 ## Maintainer
 
 [@v-stickykeys](https://github.com/v-stickykeys)
+
+## Contributing
+
+We are happy to accept small and large contributions.
 
 ## License
 

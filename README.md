@@ -8,7 +8,7 @@ The go-ipfs daemon that this image runs supports resolving dag-jose objects, usi
 
 ## Usage
 
-Simply pull the image from Dockerhub
+Simply pull the [ceramicnetwork/go-ipfs-daemon image from Dockerhub](https://hub.docker.com/r/ceramicnetwork/go-ipfs-daemon)
 
 ```sh
 docker pull ceramicnetwork/go-ipfs-daemon

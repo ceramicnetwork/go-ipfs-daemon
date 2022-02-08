@@ -19,14 +19,9 @@ if [ -e "$repo/config" ]; then
 else
   case "$IPFS_PROFILE" in
     "") INIT_ARGS="" ;;
-    *) INIT_ARGS="--profile=$IPFS_PROFILE" ;;
+    *) INIT_ARGS="--profile=$IPFS_PROFILE " ;;
   esac
-  ipfs init $INIT_ARGS
-  ipfs config Addresses.API "/ip4/0.0.0.0/tcp/$IPFS_API_PORT"
-  ipfs config Addresses.Gateway "/ip4/0.0.0.0/tcp/$IPFS_GATEWAY_PORT"
-  # TODO: Add swarm tcp and swarm ws
-  # TODO: ipfs config Addresses.Announce $IPFS_ANNOUNCE_ADDRESS_LIST
-  ipfs config --json Pubsub.Enabled true
+  ipfs init "$INIT_ARGS--algorithm=rsa"
 
   # Set up the swarm key, if provided
 
@@ -65,5 +60,12 @@ else
   fi
 
 fi
+
+ipfs config Addresses.API "/ip4/0.0.0.0/tcp/$IPFS_API_PORT"
+ipfs config Addresses.Gateway "/ip4/0.0.0.0/tcp/$IPFS_GATEWAY_PORT"
+ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", \"/ip4/0.0.0.0/tcp/$IPFS_SWARM_WS_PORT/ws\"]"
+ipfs config --json Addresses.Announce $IPFS_ANNOUNCE_ADDRESS_LIST
+ipfs config --json Pubsub.Enabled true
+ipfs config algorithm "rsa"
 
 exec ipfs "$@"

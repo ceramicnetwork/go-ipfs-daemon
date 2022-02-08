@@ -122,6 +122,9 @@ VOLUME $IPFS_PATH
 # The default logging level
 ENV IPFS_LOGGING ""
 
+# The daemon will announce inferred swarm addresses by default
+ENV IPFS_ANNOUNCE_ADDRESS_LIST "[]"
+
 COPY s3_config_scripts/ /s3_config_scripts
 
 # This just makes sure that:

@@ -25,19 +25,19 @@ jobs:
         if: ${{ env.BRANCH == 'main' }}
         run: |
           echo "ENV_TAG=prod" >> $GITHUB_ENV
-          echo "EVENT_WEBHOOK_URL=${{ secrets.EVENT_WEBHOOK_FIRE }}" >> $GITHUB_ENV
+          echo "UTILS_HANDLER_URL=${{ secrets.UTILS_HANDLER_URL_PROD }}" >> $GITHUB_ENV
       -
         name: Set rc branch tag
         if: ${{ env.BRANCH == 'release-candidate' }}
         run: |
           echo "ENV_TAG=tnet" >> $GITHUB_ENV
-          echo "EVENT_WEBHOOK_URL=${{ secrets.EVENT_WEBHOOK_CLAY }}" >> $GITHUB_ENV
+          echo "UTILS_HANDLER_URL=${{ secrets.UTILS_HANDLER_URL_TNET }}" >> $GITHUB_ENV
       -
         name: Set develop branch tag
         if: ${{ env.BRANCH == 'develop' || env.ENV_TAG == '' }}
         run: |
           echo "ENV_TAG=dev" >> $GITHUB_ENV
-          echo "EVENT_WEBHOOK_URL=${{ secrets.EVENT_WEBHOOK_DEV }}" >> $GITHUB_ENV
+          echo "UTILS_HANDLER_URL=${{ secrets.UTILS_HANDLER_URL_DEV }}" >> $GITHUB_ENV
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -82,7 +82,7 @@ jobs:
       -
         name: Publish build event
         run: |
-          res=$(docker run --rm curlimages/curl curl -X POST ${{ env.EVENT_WEBHOOK_URL }} \
+          res=$(docker run --rm curlimages/curl curl -X POST ${{ env.UTILS_HANDLER_URL }}/github/event \
             -H "Content-Type: application/json" \
             --user ${{ secrets.AWS_ACCESS_KEY_ID }}:${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --aws-sigv4 "aws:amz:${{ secrets.AWS_DEFAULT_REGION }}:execute-api" \

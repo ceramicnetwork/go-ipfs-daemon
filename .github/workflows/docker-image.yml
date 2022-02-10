@@ -88,7 +88,7 @@ jobs:
             --aws-sigv4 "aws:amz:${{ secrets.AWS_DEFAULT_REGION }}:execute-api" \
             -d '
               {
-                "event_type": "new_go_ipfs_image",
+                "event_type": "new_ipfs_image",
                 "client_payload":
                 {
                   "env_tag": "${{ env.ENV_TAG }}",

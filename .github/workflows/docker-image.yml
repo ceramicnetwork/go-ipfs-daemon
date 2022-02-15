@@ -62,7 +62,7 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       -
-        name: Build and push
+        name: Build, test and push
         env:
           IMAGE_ID_1: "ceramicnetwork/go-ipfs-daemon"
           IMAGE_ID_2: "${{ steps.login-ecr.outputs.registry }}/go-ipfs-${{ env.ENV_TAG }}"
@@ -71,7 +71,8 @@ jobs:
           if [[ "${{ env.ENV_TAG }}" == "prod" ]]; then
             EXTRA_TAGS="--tag $IMAGE_ID_1:latest --tag $IMAGE_ID_2:latest"
           fi
-          docker buildx build . --file Dockerfile --output 'type=image,push=true' \
+          docker buildx build . --file Dockerfile \
+            --tag go-ipfs-daemon \
             --tag $IMAGE_ID_1:${{ env.ENV_TAG }} \
             --tag $IMAGE_ID_1:${{ github.sha }}  \
             --tag $IMAGE_ID_1:${{ env.BRANCH }}  \
@@ -79,6 +80,9 @@ jobs:
             --tag $IMAGE_ID_2:${{ github.sha }}  \
             --tag $IMAGE_ID_2:${{ env.BRANCH }}  \
             $EXTRA_TAGS
+          docker run go-ipfs-daemon dag stat /ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn || exit 1
+          docker push --all-tags $IMAGE_ID_1
+          docker push --all-tags $IMAGE_ID_2
       -
         name: Publish build event
         run: |

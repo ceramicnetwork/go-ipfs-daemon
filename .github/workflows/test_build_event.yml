@@ -1,4 +1,4 @@
-name: Build, push, and publish Docker images
+name: Test build event
 
 on:
   workflow_dispatch: # manually triggered

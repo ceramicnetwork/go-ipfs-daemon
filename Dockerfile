@@ -130,7 +130,8 @@ COPY s3_config_scripts/ /s3_config_scripts
 # This just makes sure that:
 # 1. There's an fs-repo, and initializes one if there isn't.
 # 2. The API and Gateway are accessible from outside the container.
-ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/start_ipfs"]
+# Use -s for subreaping zombie processes
+ENTRYPOINT ["/sbin/tini", "-s", "--", "/usr/local/bin/start_ipfs"]
 
 # Heathcheck for the container
 # QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn is the CID of empty folder

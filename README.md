@@ -86,6 +86,11 @@ AWS IAM permissions
 
 We are happy to accept small and large contributions.
 
+1. Clone this repository
+1. `cd go-ipfs-daemon`
+1. Install pre-commit. E.g. `brew install pre-commit`
+1. Run `pre-commit install`
+
 ## License
 
 Dual-licensed under Apache 2.0 and MIT terms:

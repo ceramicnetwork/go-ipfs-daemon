@@ -127,6 +127,11 @@ ENV IPFS_ANNOUNCE_ADDRESS_LIST "[]"
 
 COPY s3_config_scripts/ /s3_config_scripts
 
+# Set UDP/IP receive buffer size
+ENV UDP_RECV_BUFFER_SIZE 26214400
+COPY config_scripts/ /config_scripts
+RUN chmod +x /config_scripts/set_udp_buffer_size.sh && /config_scripts/set_udp_buffer_size.sh
+
 # This just makes sure that:
 # 1. There's an fs-repo, and initializes one if there isn't.
 # 2. The API and Gateway are accessible from outside the container.

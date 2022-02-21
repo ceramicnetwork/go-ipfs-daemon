@@ -126,7 +126,7 @@ ENV IPFS_LOGGING ""
 ENV IPFS_ANNOUNCE_ADDRESS_LIST "[]"
 
 # Set UDP/IP receive buffer size config
-ENV UDP_RECV_BUFFER_SIZE 26214400
+# ENV UDP_RECV_BUFFER_SIZE 26214400
 
 COPY config_scripts/ /config_scripts
 

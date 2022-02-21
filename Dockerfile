@@ -125,12 +125,10 @@ ENV IPFS_LOGGING ""
 # The daemon will announce inferred swarm addresses by default
 ENV IPFS_ANNOUNCE_ADDRESS_LIST "[]"
 
-COPY s3_config_scripts/ /s3_config_scripts
-
-# Set UDP/IP receive buffer size
+# Set UDP/IP receive buffer size config
 ENV UDP_RECV_BUFFER_SIZE 26214400
-COPY config_scripts/ /config_scripts
-RUN chmod +x /config_scripts/set_udp_buffer_size.sh && /config_scripts/set_udp_buffer_size.sh
+
+COPY s3_config_scripts/ /s3_config_scripts
 
 # This just makes sure that:
 # 1. There's an fs-repo, and initializes one if there isn't.

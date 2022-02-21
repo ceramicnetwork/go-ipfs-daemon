@@ -12,7 +12,7 @@ repos:
     hooks:
     -   id: run-tests
         name: Run tests
-        entry: ./test/bats/bin/bats test/test.bats
+        entry: ./test/bats/bin/bats test || exit 1
         language: system
         pass_filenames: false
         stages: [push]

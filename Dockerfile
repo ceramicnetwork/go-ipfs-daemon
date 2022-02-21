@@ -128,7 +128,7 @@ ENV IPFS_ANNOUNCE_ADDRESS_LIST "[]"
 # Set UDP/IP receive buffer size config
 ENV UDP_RECV_BUFFER_SIZE 26214400
 
-COPY s3_config_scripts/ /s3_config_scripts
+COPY config_scripts/ /config_scripts
 
 # This just makes sure that:
 # 1. There's an fs-repo, and initializes one if there isn't.

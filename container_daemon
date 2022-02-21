@@ -60,10 +60,10 @@ else
     echo "Configuring S3 datastore plugin..."
 
     echo "Updating Datastore.Spec.mounts..."
-    ipfs config --json Datastore.Spec.mounts "$(/s3_config_scripts/Datastore.Spec.mounts.sh)"
+    ipfs config --json Datastore.Spec.mounts "$(/config_scripts/Datastore.Spec.mounts.s3.sh)"
 
     echo "Updating datastore_spec..."
-    echo "$(/s3_config_scripts/datastore_spec.sh)" > $IPFS_PATH/datastore_spec
+    echo "$(/config_scripts/datastore_spec.s3.sh)" > $IPFS_PATH/datastore_spec
   fi
 
 fi

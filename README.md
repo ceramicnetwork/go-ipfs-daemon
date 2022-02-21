@@ -91,6 +91,12 @@ We are happy to accept small and large contributions.
 1. Install pre-commit. E.g. `brew install pre-commit`
 1. Run `pre-commit install`
 
+### Testing
+
+```
+./test/bats/bin/bats test
+```
+
 ## License
 
 Dual-licensed under Apache 2.0 and MIT terms:

@@ -124,7 +124,7 @@ VOLUME $IPFS_PATH
 ENV IPFS_LOGGING ""
 
 # The daemon will announce inferred swarm addresses by default
-ENV IPFS_ANNOUNCE_ADDRESS_LIST ""
+# ENV IPFS_ANNOUNCE_ADDRESS_LIST ""
 
 COPY config_scripts/ /config_scripts
 

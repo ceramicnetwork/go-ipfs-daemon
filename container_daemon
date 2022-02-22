@@ -64,7 +64,9 @@ fi
 ipfs config Addresses.API "/ip4/0.0.0.0/tcp/$IPFS_API_PORT"
 ipfs config Addresses.Gateway "/ip4/0.0.0.0/tcp/$IPFS_GATEWAY_PORT"
 ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", \"/ip4/0.0.0.0/tcp/$IPFS_SWARM_WS_PORT/ws\"]"
-ipfs config --json Addresses.Announce "[\"$IPFS_ANNOUNCE_ADDRESS_LIST\"]"
+# if [ ! "IPFS_ANNOUNCE_ADDRESS_LIST" -eq "" ]; then
+#   ipfs config --json Addresses.Announce "[\"$IPFS_ANNOUNCE_ADDRESS_LIST\"]"
+# fi
 ipfs config --json Pubsub.Enabled true
 ipfs config algorithm "rsa"
 

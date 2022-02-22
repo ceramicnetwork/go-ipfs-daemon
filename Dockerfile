@@ -90,7 +90,8 @@ COPY --from=1 /usr/lib/*-linux-gnu*/libcrypto.so* /usr/lib/
 ENV IPFS_SWARM_TCP_PORT 4001
 EXPOSE $IPFS_SWARM_TCP_PORT
 # Swarm UDP; should be exposed to the public
-EXPOSE 4001/udp
+# Can be the same as TCP port
+EXPOSE $IPFS_SWARM_TCP_PORT/udp
 # Daemon API; must not be exposed publicly but to client services under you control
 ENV IPFS_API_PORT 5001
 EXPOSE $IPFS_API_PORT
@@ -124,9 +125,6 @@ ENV IPFS_LOGGING ""
 
 # The daemon will announce inferred swarm addresses by default
 ENV IPFS_ANNOUNCE_ADDRESS_LIST ""
-
-# Set UDP/IP receive buffer size config
-# ENV UDP_RECV_BUFFER_SIZE 26214400
 
 COPY config_scripts/ /config_scripts
 

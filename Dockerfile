@@ -3,7 +3,7 @@ FROM golang:1.16.7-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.11.0 https://github.com/ipfs/go-ipfs
+RUN git clone --depth 1 --branch v0.12.0 https://github.com/ipfs/go-ipfs
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.16.7-buster

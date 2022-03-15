@@ -42,10 +42,13 @@ RUN cd $SRC_DIR \
   && mkdir -p .git/objects \
   && make build GOTAGS=openssl IPFS_PLUGINS=$IPFS_PLUGINS
 
+COPY config_scripts/ /config_scripts
+
 # Get su-exec, a very minimal tool for dropping privileges,
 # and tini, a very minimal init daemon for containers
 ENV SUEXEC_VERSION v0.2
 ENV TINI_VERSION v0.19.0
+ENV JQ_VERISON jq-1.6
 RUN set -eux; \
     dpkgArch="$(dpkg --print-architecture)"; \
     case "${dpkgArch##*-}" in \
@@ -59,7 +62,13 @@ RUN set -eux; \
   && make su-exec-static \
   && cd /tmp \
   && wget -q -O tini https://github.com/krallin/tini/releases/download/$TINI_VERSION/$tiniArch \
-  && chmod +x tini
+  && chmod +x tini \
+  && cd /tmp \
+  && wget -q -O jq https://github.com/stedolan/jq/releases/download/$JQ_VERISON/jq-linux64 \
+  && chmod +x jq \
+  && cd /config_scripts \
+  && ./install_scripts.sh \
+  && chmod -R +x /config_scripts
 
 # Now comes the actual target image, which aims to be as small as possible.
 FROM busybox:1.31.1-glibc
@@ -72,6 +81,8 @@ COPY --from=1 /tmp/su-exec/su-exec-static /sbin/su-exec
 COPY --from=1 /tmp/tini /sbin/tini
 COPY --from=1 /bin/fusermount /usr/local/bin/fusermount
 COPY --from=1 /etc/ssl/certs /etc/ssl/certs
+COPY --from=1 /tmp/jq /sbin/jq
+COPY --from=1 /config_scripts /config_scripts
 
 # Add suid bit on fusermount so it will run properly
 RUN chmod 4755 /usr/local/bin/fusermount
@@ -126,8 +137,6 @@ ENV IPFS_LOGGING ""
 # The daemon will announce inferred swarm addresses by default
 # ENV IPFS_ANNOUNCE_ADDRESS_LIST ""
 
-COPY config_scripts/ /config_scripts
-
 # This just makes sure that:
 # 1. There's an fs-repo, and initializes one if there isn't.
 # 2. The API and Gateway are accessible from outside the container.
@@ -140,4 +149,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD ipfs dag stat /ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn || exit 1
 
 # Execute the daemon subcommand by default
-CMD ["daemon", "--migrate=true", "--agent-version-suffix=docker"]
+CMD ["daemon", "--migrate=false", "--agent-version-suffix=docker"]

@@ -49,6 +49,13 @@ else
   # Unset the swarm key file variable
   unset IPFS_SWARM_KEY_FILE
 
+  # Set up the identity key and id, if provided
+
+  if [ ! -z "$IPFS_PRIVATE_KEY" ]; then
+    echo "Copying private key and peer id into config from environment..."
+    ./config_scripts/ipfs-config-identity.sh $repo/config $IPFS_PEER_ID $IPFS_PRIVATE_KEY || exit 1
+  fi
+
   if [ $IPFS_ENABLE_S3 == true ] ; then
     echo "Configuring S3 datastore plugin..."
 

@@ -44,11 +44,12 @@ RUN cd $SRC_DIR \
 
 COPY config_scripts/ /config_scripts
 
+ENV CURL_VERSION v7.82.0
+ENV JQ_VERISON jq-1.6
 # Get su-exec, a very minimal tool for dropping privileges,
 # and tini, a very minimal init daemon for containers
 ENV SUEXEC_VERSION v0.2
 ENV TINI_VERSION v0.19.0
-ENV JQ_VERISON jq-1.6
 RUN set -eux; \
     dpkgArch="$(dpkg --print-architecture)"; \
     case "${dpkgArch##*-}" in \
@@ -66,6 +67,9 @@ RUN set -eux; \
   && cd /tmp \
   && wget -q -O jq https://github.com/stedolan/jq/releases/download/$JQ_VERISON/jq-linux64 \
   && chmod +x jq \
+  && cd /tmp \
+  && wget -q -O curl https://github.com/moparisthebest/static-curl/releases/download/$CURL_VERSION/curl-amd64 \
+  && chmod +x curl \
   && cd /config_scripts \
   && ./install_scripts.sh \
   && chmod -R +x /config_scripts
@@ -81,6 +85,7 @@ COPY --from=1 /tmp/su-exec/su-exec-static /sbin/su-exec
 COPY --from=1 /tmp/tini /sbin/tini
 COPY --from=1 /bin/fusermount /usr/local/bin/fusermount
 COPY --from=1 /etc/ssl/certs /etc/ssl/certs
+COPY --from=1 /tmp/curl /sbin/curl
 COPY --from=1 /tmp/jq /sbin/jq
 COPY --from=1 /config_scripts /config_scripts
 

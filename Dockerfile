@@ -1,9 +1,9 @@
-# Based on https://github.com/ipfs/go-ipfs/tree/c55fda4d6cbd40150d4432ea9226c5b977fc96f4
+# Based on https://github.com/ipfs/go-ipfs/commit/67220edaaef4a938fe5fba85d793bfee59db3256
 FROM golang:1.16.7-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.10.0 https://github.com/ipfs/go-ipfs
+RUN git clone --depth 1 --branch v0.12.0 https://github.com/ipfs/go-ipfs
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.16.7-buster
@@ -21,15 +21,16 @@ COPY --from=clone /clone/go-ipfs/go.mod /clone/go-ipfs/go.sum $SRC_DIR/
 COPY --from=clone /clone/go-ipfs $SRC_DIR
 
 RUN cd $SRC_DIR \
-  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.10.0 \
-  && go get github.com/3box/go-ds-s3/plugin@v0.10.0 \
+  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.11.0 \
+  && go get github.com/3box/go-ds-s3/plugin@v0.11.0 \
   && go get github.com/cheggaaa/pb@v1.0.29
 
 RUN cd $SRC_DIR \
   && echo "\nhealthcheck github.com/ceramicnetwork/go-ipfs-healthcheck/plugin 0" >> plugin/loader/preload_list \
   && echo "\ns3ds github.com/3box/go-ds-s3/plugin 0" >> plugin/loader/preload_list
 
-RUN cd $SRC_DIR && go mod download
+RUN cd $SRC_DIR \
+  && go mod download
 
 # Preload an in-tree but disabled-by-default plugin by adding it to the IPFS_PLUGINS variable
 # e.g. docker build --build-arg IPFS_PLUGINS="foo bar baz"
@@ -41,6 +42,10 @@ RUN cd $SRC_DIR \
   && mkdir -p .git/objects \
   && make build GOTAGS=openssl IPFS_PLUGINS=$IPFS_PLUGINS
 
+COPY config_scripts/ /config_scripts
+
+ENV CURL_VERSION v7.82.0
+ENV JQ_VERISON jq-1.6
 # Get su-exec, a very minimal tool for dropping privileges,
 # and tini, a very minimal init daemon for containers
 ENV SUEXEC_VERSION v0.2
@@ -58,7 +63,16 @@ RUN set -eux; \
   && make su-exec-static \
   && cd /tmp \
   && wget -q -O tini https://github.com/krallin/tini/releases/download/$TINI_VERSION/$tiniArch \
-  && chmod +x tini
+  && chmod +x tini \
+  && cd /tmp \
+  && wget -q -O jq https://github.com/stedolan/jq/releases/download/$JQ_VERISON/jq-linux64 \
+  && chmod +x jq \
+  && cd /tmp \
+  && wget -q -O curl https://github.com/moparisthebest/static-curl/releases/download/$CURL_VERSION/curl-amd64 \
+  && chmod +x curl \
+  && cd /config_scripts \
+  && ./install_scripts.sh \
+  && chmod -R +x /config_scripts
 
 # Now comes the actual target image, which aims to be as small as possible.
 FROM busybox:1.31.1-glibc
@@ -71,6 +85,9 @@ COPY --from=1 /tmp/su-exec/su-exec-static /sbin/su-exec
 COPY --from=1 /tmp/tini /sbin/tini
 COPY --from=1 /bin/fusermount /usr/local/bin/fusermount
 COPY --from=1 /etc/ssl/certs /etc/ssl/certs
+COPY --from=1 /tmp/curl /sbin/curl
+COPY --from=1 /tmp/jq /sbin/jq
+COPY --from=1 /config_scripts /config_scripts
 
 # Add suid bit on fusermount so it will run properly
 RUN chmod 4755 /usr/local/bin/fusermount
@@ -86,17 +103,23 @@ COPY --from=1 /usr/lib/*-linux-gnu*/libssl.so* /usr/lib/
 COPY --from=1 /usr/lib/*-linux-gnu*/libcrypto.so* /usr/lib/
 
 # Swarm TCP; should be exposed to the public
-EXPOSE 4001
+ENV IPFS_SWARM_TCP_PORT 4001
+EXPOSE $IPFS_SWARM_TCP_PORT
 # Swarm UDP; should be exposed to the public
-EXPOSE 4001/udp
+# Can be the same as TCP port
+EXPOSE $IPFS_SWARM_TCP_PORT/udp
 # Daemon API; must not be exposed publicly but to client services under you control
-EXPOSE 5001
+ENV IPFS_API_PORT 5001
+EXPOSE $IPFS_API_PORT
 # Web Gateway; can be exposed publicly with a proxy, e.g. as https://ipfs.example.org
-EXPOSE 8080
+ENV IPFS_GATEWAY_PORT 8080
+EXPOSE $IPFS_GATEWAY_PORT
 # Swarm Websockets; must be exposed publicly when the node is listening using the websocket transport (/ipX/.../tcp/8081/ws).
-EXPOSE 8081
+ENV IPFS_SWARM_WS_PORT 8081
+EXPOSE $IPFS_SWARM_WS_PORT
 # Healthcheck Server; can be exposed to services under your control
-EXPOSE 8011
+ENV IPFS_HEALTHCHECK_PORT 8011
+EXPOSE $IPFS_HEALTHCHECK_PORT
 
 # Create the fs-repo directory and switch to a non-privileged user.
 ENV IPFS_PATH /data/ipfs
@@ -116,17 +139,19 @@ VOLUME $IPFS_PATH
 # The default logging level
 ENV IPFS_LOGGING ""
 
-COPY s3_config_scripts/ /s3_config_scripts
+# The daemon will announce inferred swarm addresses by default
+# ENV IPFS_ANNOUNCE_ADDRESS_LIST ""
 
 # This just makes sure that:
 # 1. There's an fs-repo, and initializes one if there isn't.
 # 2. The API and Gateway are accessible from outside the container.
-ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/start_ipfs"]
+# Use -s for subreaping zombie processes
+ENTRYPOINT ["/sbin/tini", "-s", "--", "/usr/local/bin/start_ipfs"]
 
 # Heathcheck for the container
 # QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn is the CID of empty folder
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD ipfs get /ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn || exit 1
+  CMD ipfs dag stat /ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn || exit 1
 
 # Execute the daemon subcommand by default
-CMD ["daemon", "--migrate=true"]
+CMD ["daemon", "--migrate=false", "--agent-version-suffix=docker"]

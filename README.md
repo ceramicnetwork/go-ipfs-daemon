@@ -8,24 +8,52 @@ The go-ipfs daemon that this image runs supports resolving dag-jose objects, usi
 
 ## Usage
 
+Simply pull the [ceramicnetwork/go-ipfs-daemon image from Dockerhub](https://hub.docker.com/r/ceramicnetwork/go-ipfs-daemon)
+
+```sh
+docker pull ceramicnetwork/go-ipfs-daemon
+```
+
+Or you can download the source code and build the image on your machine
+
 ```sh
 git clone <this_repo_url>
 
 cd go-ipfs-daemon
 
 docker build . -t go-ipfs-daemon
+```
 
+Run a container
+
+```sh
+docker run \
+  -p 5001:5001 \ # API port
+  -p 8011:8011 # Healthcheck port
+  go-ipfs-daemon
+```
+
+You may want to use S3 for the IPFS Blockstore. See the [go-ds-s3 plugin](https://github.com/3box/go-ds-s3#configuration) for more configuration details.
+
+```sh
 # Fill in your credentials below
 docker run \
-  -p 8011:8011
+  -p 5001:5001 \ # API port
+  -p 8011:8011 \ # Healthcheck port
   -e IPFS_ENABLE_S3=true \
   -e IPFS_S3_REGION= \
   -e IPFS_S3_BUCKET_NAME= \
   -e IPFS_S3_ROOT_DIRECTORY= \
   -e IPFS_S3_ACCESS_KEY_ID= \
   -e IPFS_S3_SECRET_ACCESS_KEY= \
+  -e IPFS_S3_KEY_TRANSFORM=next-to-last/2 \
   go-ipfs-daemon
 
+# Get the container id
+docker ps
+
+# Run ipfs commands
+docker exec -i <container_id> sh -c "ipfs version"
 ```
 
 AWS IAM permissions
@@ -54,9 +82,24 @@ AWS IAM permissions
 
 [@v-stickykeys](https://github.com/v-stickykeys)
 
+## Contributing
+
+We are happy to accept small and large contributions.
+
+1. Clone this repository
+1. `cd go-ipfs-daemon`
+1. Install pre-commit. E.g. `brew install pre-commit`
+1. Run `pre-commit install`
+
+### Testing
+
+```
+./test/bats/bin/bats test
+```
+
 ## License
 
-The go-ipfs project is dual-licensed under Apache 2.0 and MIT terms:
+Dual-licensed under Apache 2.0 and MIT terms:
 
 - Apache License, Version 2.0, ([LICENSE-APACHE](https://github.com/ipfs/go-ipfs/blob/master/LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
 - MIT license ([LICENSE-MIT](https://github.com/ipfs/go-ipfs/blob/master/LICENSE-MIT) or http://opensource.org/licenses/MIT)

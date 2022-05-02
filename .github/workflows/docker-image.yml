@@ -86,6 +86,9 @@ jobs:
           docker run go-ipfs-daemon dag stat /ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn || exit 1
           docker push --all-tags $IMAGE_ID_1
           docker push --all-tags $IMAGE_ID_2
+          if [[ -n $IMAGE_ID_3 ]]; then
+            docker push --all-tags $IMAGE_ID_3
+          fi
       -
         name: Publish build event
         run: |

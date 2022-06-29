@@ -1,5 +1,5 @@
 # TODO: Remove ECR and build event steps once the new CD flow is implemented
-name: Publish Docker image and docs
+name: Publish Docker image
 
 on:
   push:

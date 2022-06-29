@@ -1,12 +1,12 @@
+# TODO: Deprecated
 name: Build, push, and publish Docker images
 
 on:
-  push:
-    branches: [ develop, release-candidate, main ]
-    paths-ignore:
-      - '.github/**'
-      - 'README.md'
-
+#  push:
+#    branches: [ develop, release-candidate, main ]
+#    paths-ignore:
+#      - '.github/**'
+#      - 'README.md'
   workflow_dispatch: # manually triggered
 
 jobs:

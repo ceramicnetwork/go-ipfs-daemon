@@ -1,12 +1,12 @@
 # Based on https://github.com/ipfs/go-ipfs/commit/67220edaaef4a938fe5fba85d793bfee59db3256
-FROM golang:1.16.7-buster as clone
+FROM golang:1.18-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.12.0 https://github.com/ipfs/go-ipfs
+RUN git clone --depth 1 --branch v0.14.0 https://github.com/ipfs/kubo go-ipfs
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
-FROM golang:1.16.7-buster
+FROM golang:1.18-buster
 
 # Install deps
 RUN apt-get update && apt-get install -y \
@@ -21,9 +21,9 @@ COPY --from=clone /clone/go-ipfs/go.mod /clone/go-ipfs/go.sum $SRC_DIR/
 COPY --from=clone /clone/go-ipfs $SRC_DIR
 
 RUN cd $SRC_DIR \
-  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.11.0 \
-  && go get github.com/3box/go-ds-s3/plugin@v0.11.0 \
-  && go get github.com/cheggaaa/pb@v1.0.29
+  && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.14.0 \
+  && go get github.com/3box/go-ds-s3/plugin@v0.14.0
+#  && go get github.com/cheggaaa/pb@v1.0.29
 
 RUN cd $SRC_DIR \
   && echo "\nhealthcheck github.com/ceramicnetwork/go-ipfs-healthcheck/plugin 0" >> plugin/loader/preload_list \

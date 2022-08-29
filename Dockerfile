@@ -23,7 +23,6 @@ COPY --from=clone /clone/go-ipfs $SRC_DIR
 RUN cd $SRC_DIR \
   && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.14.0 \
   && go get github.com/3box/go-ds-s3/plugin@v0.14.0
-#  && go get github.com/cheggaaa/pb@v1.0.29
 
 RUN cd $SRC_DIR \
   && echo "\nhealthcheck github.com/ceramicnetwork/go-ipfs-healthcheck/plugin 0" >> plugin/loader/preload_list \

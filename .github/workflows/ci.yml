@@ -23,7 +23,7 @@ env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
   # Miscellaneous
   RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-  BRANCH: ${{ github.ref_name }}
+  BRANCH: ${{ github.head_ref || github.ref_name }}
   SHA: ${{ github.sha }}
 
 jobs:

@@ -1,5 +1,5 @@
 # TODO: Remove ECR and build event steps once the new CD flow is fully implemented
-name: Publish Docker image
+name: Dagger CI Workflow
 
 on:
   push:

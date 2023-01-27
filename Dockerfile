@@ -1,9 +1,9 @@
-# Based on https://github.com/ipfs/go-ipfs/commit/67220edaaef4a938fe5fba85d793bfee59db3256
+# Based on https://github.com/ipfs/kubo/blob/v0.17.0/Dockerfile
 FROM golang:1.19.1-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.18.0 https://github.com/ipfs/kubo go-ipfs
+RUN git clone --depth 1 --branch v0.17.0 https://github.com/ipfs/kubo go-ipfs
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.19.1-buster

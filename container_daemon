@@ -19,7 +19,9 @@ IPFS_DAEMON_FLAGS=""
 if [ -e "$repo/config" ]; then
   echo "Found IPFS fs-repo at $repo"
   # Only need to upgrade for a pre-existing repo
-  IPFS_DAEMON_FLAGS="$IPFS_DAEMON_FLAGS $IPFS_AUTO_MIGRATE"
+  if [ $IPFS_AUTO_MIGRATE == true ] ; then
+    IPFS_DAEMON_FLAGS="$IPFS_DAEMON_FLAGS --migrate"
+  fi
 else
   case "$IPFS_PROFILE" in
     "") INIT_ARGS="" ;;

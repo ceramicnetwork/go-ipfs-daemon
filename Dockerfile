@@ -1,12 +1,12 @@
-# Based on https://github.com/ipfs/go-ipfs/commit/67220edaaef4a938fe5fba85d793bfee59db3256
-FROM golang:1.18-buster as clone
+# Based on https://github.com/ipfs/kubo/tree/v0.18.1
+FROM golang:1.19.1-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.15.0 https://github.com/ipfs/kubo go-ipfs
+RUN git clone --depth 1 --branch v0.18.1 https://github.com/ipfs/kubo kubo
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
-FROM golang:1.18-buster
+FROM golang:1.19.1-buster
 
 # Install deps
 RUN apt-get update && apt-get install -y \
@@ -14,11 +14,11 @@ RUN apt-get update && apt-get install -y \
   ca-certificates \
   fuse
 
-ENV SRC_DIR /go-ipfs
+ENV SRC_DIR /kubo
 
 # Download packages first so they can be cached.
-COPY --from=clone /clone/go-ipfs/go.mod /clone/go-ipfs/go.sum $SRC_DIR/
-COPY --from=clone /clone/go-ipfs $SRC_DIR
+COPY --from=clone /clone/kubo/go.mod /clone/kubo/go.sum $SRC_DIR/
+COPY --from=clone /clone/kubo $SRC_DIR
 
 RUN cd $SRC_DIR \
   && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.14.0 \
@@ -77,7 +77,7 @@ RUN set -eux; \
 FROM busybox:1.31.1-glibc
 
 # Get the ipfs binary, entrypoint script, and TLS CAs from the build container.
-ENV SRC_DIR /go-ipfs
+ENV SRC_DIR /kubo
 COPY --from=1 $SRC_DIR/cmd/ipfs/ipfs /usr/local/bin/ipfs
 COPY container_daemon /usr/local/bin/start_ipfs
 COPY --from=1 /tmp/su-exec/su-exec-static /sbin/su-exec

@@ -2,7 +2,7 @@ name: Dagger CI Workflow
 
 on:
   push:
-    branches: [ develop, release-candidate, main ]
+    branches: [ develop, qa, release-candidate, main ]
   pull_request: # pull requests
   workflow_dispatch: # manually triggered
 
@@ -66,10 +66,15 @@ jobs:
         run: |
           echo "ENV_TAG=tnet" >> $GITHUB_ENV
       -
-        name: Set develop branch tag
-        if: ${{ env.BRANCH == 'develop' || env.ENV_TAG == '' }}
+        name: Set qa branch tag
+        if: ${{ env.BRANCH == 'qa' || env.ENV_TAG == '' }}
         run: |
-          echo "ENV_TAG=dev" >> $GITHUB_ENV
+          echo "ENV_TAG=qa" >> $GITHUB_ENV
+#      -
+#        name: Set develop branch tag
+#        if: ${{ env.BRANCH == 'develop' || env.ENV_TAG == '' }}
+#        run: |
+#          echo "ENV_TAG=dev" >> $GITHUB_ENV
       -
         name: Verify Docker image
         run: dagger do verify -p ${{ env.DAGGER_PLAN }}

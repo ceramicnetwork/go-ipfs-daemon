@@ -14,8 +14,12 @@ fi
 # 2nd invocation with regular user
 ipfs version
 
+IPFS_DAEMON_FLAGS=""
+
 if [ -e "$repo/config" ]; then
   echo "Found IPFS fs-repo at $repo"
+  # Only need to upgrade for a pre-existing repo
+  IPFS_DAEMON_FLAGS="$IPFS_DAEMON_FLAGS $IPFS_AUTO_MIGRATE"
 else
   case "$IPFS_PROFILE" in
     "") INIT_ARGS="" ;;
@@ -77,4 +81,4 @@ ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", 
 ipfs config --json Pubsub.Enabled true
 ipfs config algorithm "rsa"
 
-exec ipfs "$@"
+exec ipfs "$@" $IPFS_DAEMON_FLAGS

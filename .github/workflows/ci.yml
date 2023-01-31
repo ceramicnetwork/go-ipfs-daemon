@@ -80,7 +80,7 @@ jobs:
         run: dagger do verify -p ${{ env.DAGGER_PLAN }}
       -
         name: Set publish flag
-        if: ${{ env.BRANCH == 'main' || env.BRANCH == 'release-candidate' || env.BRANCH == 'develop' }}
+        if: ${{ env.BRANCH == 'main' || env.BRANCH == 'release-candidate' || env.BRANCH == 'qa' || env.BRANCH == 'develop' || env.BRANCH == 'feature/plat-1299-upgrade-to-kubo-v0181' }}
         run: echo "PUBLISH=true" >> $GITHUB_ENV
       -
         name: Push Docker image

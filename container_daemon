@@ -68,6 +68,10 @@ else
 
 fi
 
+# Explicitly run the migration before any configuration because, for some reason, trying to run the migration after the
+# configuration commands doesn't work.
+ipfs repo migrate
+
 ipfs config Addresses.API "/ip4/0.0.0.0/tcp/$IPFS_API_PORT"
 ipfs config Addresses.Gateway "/ip4/0.0.0.0/tcp/$IPFS_GATEWAY_PORT"
 ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", \"/ip4/0.0.0.0/tcp/$IPFS_SWARM_WS_PORT/ws\"]"

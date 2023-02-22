@@ -80,6 +80,6 @@ ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", 
 # fi
 ipfs config --json Pubsub.Enabled true
 ipfs config algorithm "rsa"
-ipfs config --json Swarm.RelayClient.Enabled false
+ipfs config --json Swarm.RelayClient.Enabled true
 
 exec ipfs "$@"

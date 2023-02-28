@@ -80,7 +80,7 @@ ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", 
 # fi
 ipfs config --json Pubsub.Enabled true
 ipfs config Pubsub.SeenMessagesTTL 10m
-ipfs config --json Swarm.RelayClient.Enabled true
+ipfs config --json Swarm.RelayClient.Enabled false
 
 BOOTSTRAP_PEERS='[
   {"ID": "QmXALVsXZwPWTUbsT8G6VVzzgTJaAWRUD7FWL5f7d5ubAL", "Addrs": ["/dns4/go-ipfs-ceramic-private-mainnet-external.3boxlabs.com/tcp/4011/ws/p2p/QmXALVsXZwPWTUbsT8G6VVzzgTJaAWRUD7FWL5f7d5ubAL"]},

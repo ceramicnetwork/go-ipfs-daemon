@@ -20,17 +20,22 @@ ENV SRC_DIR /kubo
 COPY --from=clone /clone/kubo/go.mod /clone/kubo/go.sum $SRC_DIR/
 COPY --from=clone /clone/kubo $SRC_DIR
 
+# First bump the pubsub package and clean up dependencies
+RUN cd $SRC_DIR \
+  && go mod edit -replace github.com/libp2p/go-libp2p-pubsub=github.com/libp2p/go-libp2p-pubsub@v0.9.3 \
+  && go mod tidy
+
+# Now add extra plugins
 RUN cd $SRC_DIR \
   && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.14.0 \
-  && go get github.com/3box/go-ds-s3/plugin@v0.14.0 \
-  && go mod edit -replace github.com/libp2p/go-libp2p-pubsub=github.com/libp2p/go-libp2p-pubsub@v0.9.3
+  && go get github.com/3box/go-ds-s3/plugin@v0.14.0
 
 RUN cd $SRC_DIR \
   && echo "\nhealthcheck github.com/ceramicnetwork/go-ipfs-healthcheck/plugin 0" >> plugin/loader/preload_list \
   && echo "\ns3ds github.com/3box/go-ds-s3/plugin 0" >> plugin/loader/preload_list
 
 RUN cd $SRC_DIR \
-  && go mod tidy
+  && go mod download
 
 # Preload an in-tree but disabled-by-default plugin by adding it to the IPFS_PLUGINS variable
 # e.g. docker build --build-arg IPFS_PLUGINS="foo bar baz"

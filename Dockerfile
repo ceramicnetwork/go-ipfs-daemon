@@ -3,7 +3,7 @@ FROM golang:1.19.1-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.18.1 https://github.com/ipfs/kubo kubo
+RUN git clone --depth 1 --branch v0.19.1 https://github.com/ipfs/kubo kubo
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.19.1-buster
@@ -22,7 +22,8 @@ COPY --from=clone /clone/kubo $SRC_DIR
 
 RUN cd $SRC_DIR \
   && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.14.0 \
-  && go get github.com/3box/go-ds-s3/plugin@v0.14.0
+  && go get github.com/3box/go-ds-s3/plugin@v0.14.0 \
+  && go mod edit -replace github.com/libp2p/go-libp2p-pubsub=github.com/libp2p/go-libp2p-pubsub@v0.9.3
 
 RUN cd $SRC_DIR \
   && echo "\nhealthcheck github.com/ceramicnetwork/go-ipfs-healthcheck/plugin 0" >> plugin/loader/preload_list \

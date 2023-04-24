@@ -30,7 +30,7 @@ RUN cd $SRC_DIR \
   && echo "\ns3ds github.com/3box/go-ds-s3/plugin 0" >> plugin/loader/preload_list
 
 RUN cd $SRC_DIR \
-  && go mod download
+  && go mod tidy
 
 # Preload an in-tree but disabled-by-default plugin by adding it to the IPFS_PLUGINS variable
 # e.g. docker build --build-arg IPFS_PLUGINS="foo bar baz"

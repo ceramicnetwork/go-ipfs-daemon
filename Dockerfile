@@ -3,7 +3,7 @@ FROM golang:1.19.1-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.19.1 https://github.com/ipfs/kubo kubo
+RUN git clone --depth 1 --branch v0.21.0-validator https://github.com/ipfs/kubo kubo
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.19.1-buster
@@ -20,12 +20,6 @@ ENV SRC_DIR /kubo
 COPY --from=clone /clone/kubo/go.mod /clone/kubo/go.sum $SRC_DIR/
 COPY --from=clone /clone/kubo $SRC_DIR
 
-# First bump the pubsub package and clean up dependencies
-RUN cd $SRC_DIR \
-  && go mod edit -replace github.com/libp2p/go-libp2p-pubsub=github.com/libp2p/go-libp2p-pubsub@v0.9.3 \
-  && go mod tidy
-
-# Now add extra plugins
 RUN cd $SRC_DIR \
   && go get github.com/ceramicnetwork/go-ipfs-healthcheck/plugin@v0.14.0 \
   && go get github.com/3box/go-ds-s3/plugin@v0.14.0

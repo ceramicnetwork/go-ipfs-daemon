@@ -3,7 +3,7 @@ FROM golang:1.19.1-buster as clone
 
 WORKDIR /clone
 
-RUN git clone --depth 1 --branch v0.21.0-validator https://github.com/ceramicnetwork/kubo kubo
+RUN git clone --depth 1 --branch v0.20.0-rc2-validator https://github.com/ceramicnetwork/kubo kubo
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.19.1-buster

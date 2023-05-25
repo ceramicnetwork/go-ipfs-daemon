@@ -6,7 +6,7 @@ WORKDIR /clone
 RUN git clone --depth 1 --branch v0.19.1 https://github.com/ipfs/kubo kubo
 
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
-FROM golang:1.19.1-buster
+FROM golang:1.19.1-buster as builder
 
 # Install deps
 RUN apt-get update && apt-get install -y \
@@ -78,15 +78,16 @@ FROM busybox:1.31.1-glibc
 
 # Get the ipfs binary, entrypoint script, and TLS CAs from the build container.
 ENV SRC_DIR /kubo
-COPY --from=1 $SRC_DIR/cmd/ipfs/ipfs /usr/local/bin/ipfs
-COPY container_daemon /usr/local/bin/start_ipfs
-COPY --from=1 /tmp/su-exec/su-exec-static /sbin/su-exec
-COPY --from=1 /tmp/tini /sbin/tini
-COPY --from=1 /bin/fusermount /usr/local/bin/fusermount
-COPY --from=1 /etc/ssl/certs /etc/ssl/certs
-COPY --from=1 /tmp/curl /sbin/curl
-COPY --from=1 /tmp/jq /sbin/jq
-COPY --from=1 /config_scripts /config_scripts
+COPY --from=builder $SRC_DIR/cmd/ipfs/ipfs /usr/local/bin/ipfs
+COPY --from=builder $SRC_DIR/bin/container_daemon /usr/local/bin/start_ipfs
+COPY --from=builder $SRC_DIR/bin/container_init_run /usr/local/bin/container_init_run
+COPY --from=builder /tmp/su-exec/su-exec-static /sbin/su-exec
+COPY --from=builder /tmp/tini /sbin/tini
+COPY --from=builder /bin/fusermount /usr/local/bin/fusermount
+COPY --from=builder /etc/ssl/certs /etc/ssl/certs
+COPY --from=builder /tmp/curl /sbin/curl
+COPY --from=builder /tmp/jq /sbin/jq
+COPY --from=builder /config_scripts /config_scripts
 
 # Add suid bit on fusermount so it will run properly
 RUN chmod 4755 /usr/local/bin/fusermount
@@ -95,11 +96,11 @@ RUN chmod 4755 /usr/local/bin/fusermount
 RUN chmod 0755 /usr/local/bin/start_ipfs
 
 # This shared lib (part of glibc) doesn't seem to be included with busybox.
-COPY --from=1 /lib/*-linux-gnu*/libdl.so.2 /lib/
+COPY --from=builder /lib/*-linux-gnu*/libdl.so.2 /lib/
 
 # Copy over SSL libraries.
-COPY --from=1 /usr/lib/*-linux-gnu*/libssl.so* /usr/lib/
-COPY --from=1 /usr/lib/*-linux-gnu*/libcrypto.so* /usr/lib/
+COPY --from=builder /usr/lib/*-linux-gnu*/libssl.so* /usr/lib/
+COPY --from=builder /usr/lib/*-linux-gnu*/libcrypto.so* /usr/lib/
 
 # Swarm TCP; should be exposed to the public
 ENV IPFS_SWARM_TCP_PORT 4001
@@ -129,6 +130,14 @@ RUN mkdir -p $IPFS_PATH \
 # Create mount points for `ipfs mount` command
 RUN mkdir /ipfs /ipns \
   && chown ipfs:users /ipfs /ipns
+
+# Create the init scripts directory
+RUN mkdir /container-init.d \
+  && chown ipfs:users /container-init.d
+
+# Add predefined init scripts.
+ADD container-init.d /container-init.d
+
 
 # Expose the fs-repo as a volume.
 # start_ipfs initializes an fs-repo if none is mounted.

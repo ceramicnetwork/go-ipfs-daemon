@@ -68,10 +68,7 @@ RUN set -eux; \
   && chmod +x jq \
   && cd /tmp \
   && wget -q -O curl https://github.com/moparisthebest/static-curl/releases/download/$CURL_VERSION/curl-amd64 \
-  && chmod +x curl \
-  && cd /config_scripts \
-  && ./install_scripts.sh \
-  && chmod -R +x /config_scripts
+  && chmod +x curl
 
 # Now comes the actual target image, which aims to be as small as possible.
 FROM busybox:1.31.1-glibc

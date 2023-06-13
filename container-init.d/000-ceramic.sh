@@ -1,59 +1,14 @@
 #!/bin/sh
 set -e
-user=ipfs
+
 repo="$IPFS_PATH"
-
-if [ `id -u` -eq 0 ]; then
-  echo "Changing user to $user"
-  # ensure folder is writable
-  su-exec "$user" test -w "$repo" || chown -R -- "$user" "$repo"
-  # restart script with new privileges
-  exec su-exec "$user" "$0" "$@"
-fi
-
-# 2nd invocation with regular user
-ipfs version
 
 if [ -e "$repo/config" ]; then
   echo "Found IPFS fs-repo at $repo"
 else
-  case "$IPFS_PROFILE" in
-    "") INIT_ARGS="" ;;
-    *) INIT_ARGS="--profile=$IPFS_PROFILE " ;;
-  esac
-  ipfs init "$INIT_ARGS--algorithm=rsa"
-
-  # Set up the swarm key, if provided
-
-  SWARM_KEY_FILE="$repo/swarm.key"
-  SWARM_KEY_PERM=0400
-
-  # Create a swarm key from a given environment variable
-  if [ ! -z "$IPFS_SWARM_KEY" ] ; then
-    echo "Copying swarm key from variable..."
-    echo -e "$IPFS_SWARM_KEY" >"$SWARM_KEY_FILE" || exit 1
-    chmod $SWARM_KEY_PERM "$SWARM_KEY_FILE"
-  fi
-
-  # Unset the swarm key variable
-  unset IPFS_SWARM_KEY
-
-  # Check during initialization if a swarm key was provided and
-  # copy it to the ipfs directory with the right permissions
-  # WARNING: This will replace the swarm key if it exists
-  if [ ! -z "$IPFS_SWARM_KEY_FILE" ] ; then
-    echo "Copying swarm key from file..."
-    install -m $SWARM_KEY_PERM "$IPFS_SWARM_KEY_FILE" "$SWARM_KEY_FILE" || exit 1
-  fi
-
-  # Unset the swarm key file variable
-  unset IPFS_SWARM_KEY_FILE
-
-  # Set up the identity key and id, if provided
-
   if [ ! -z "$IPFS_PRIVATE_KEY" ]; then
     echo "Copying private key and peer id into config from environment..."
-    ./config_scripts/ipfs-config-identity.sh $repo/config $IPFS_PEER_ID $IPFS_PRIVATE_KEY || exit 1
+    /config_scripts/ipfs-config-identity.sh $repo/config $IPFS_PEER_ID $IPFS_PRIVATE_KEY || exit 1
   fi
 
   if [ $IPFS_ENABLE_S3 == true ] ; then
@@ -65,7 +20,6 @@ else
     echo "Updating datastore_spec..."
     echo "$(/config_scripts/datastore_spec.s3.sh)" > $IPFS_PATH/datastore_spec
   fi
-
 fi
 
 # Explicitly run the migration before any configuration because, for some reason, trying to run the migration after the
@@ -73,11 +27,9 @@ fi
 ipfs repo migrate
 
 ipfs config Addresses.API "/ip4/0.0.0.0/tcp/$IPFS_API_PORT"
-ipfs config Addresses.Gateway "/ip4/0.0.0.0/tcp/$IPFS_GATEWAY_PORT"
+# Explicitly disable the gateway
+ipfs config --json Addresses.Gateway '[]'
 ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", \"/ip4/0.0.0.0/tcp/$IPFS_SWARM_WS_PORT/ws\"]"
-# if [ ! "IPFS_ANNOUNCE_ADDRESS_LIST" -eq "" ]; then
-#   ipfs config --json Addresses.Announce "[\"$IPFS_ANNOUNCE_ADDRESS_LIST\"]"
-# fi
 ipfs config --json Pubsub.Enabled true
 ipfs config Pubsub.SeenMessagesTTL 10m
 ipfs config --json Swarm.RelayClient.Enabled false
@@ -90,5 +42,3 @@ BOOTSTRAP_PEERS='[
   {"ID": "QmbeBTzSccH8xYottaYeyVX8QsKyox1ExfRx7T1iBqRyCd", "Addrs": ["/dns4/go-ipfs-ceramic-private-cas-clay-external.3boxlabs.com/tcp/4011/ws/p2p/QmbeBTzSccH8xYottaYeyVX8QsKyox1ExfRx7T1iBqRyCd"]}
 ]'
 ipfs config --json Peering.Peers "${BOOTSTRAP_PEERS}"
-
-exec ipfs "$@"

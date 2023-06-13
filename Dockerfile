@@ -108,9 +108,6 @@ EXPOSE $IPFS_SWARM_TCP_PORT/udp
 # Daemon API; must not be exposed publicly but to client services under you control
 ENV IPFS_API_PORT 5001
 EXPOSE $IPFS_API_PORT
-# Web Gateway; can be exposed publicly with a proxy, e.g. as https://ipfs.example.org
-ENV IPFS_GATEWAY_PORT 8080
-EXPOSE $IPFS_GATEWAY_PORT
 # Swarm Websockets; must be exposed publicly when the node is listening using the websocket transport (/ipX/.../tcp/8081/ws).
 ENV IPFS_SWARM_WS_PORT 8081
 EXPOSE $IPFS_SWARM_WS_PORT

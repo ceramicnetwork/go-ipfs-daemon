@@ -5,11 +5,6 @@ WORKDIR /clone
 
 RUN git clone --depth 1 --branch v0.19.1-validator https://github.com/ceramicnetwork/kubo kubo
 
-# Append the short sha to the Kubo version string
-RUN cd kubo && \
-    SHA=$(echo "${2:-$(git rev-parse HEAD)}" | cut -c 1-7) && \
-    sed -i "/CurrentVersionNumber/s/\"$/-$SHA\"/" version.go
-
 # Note: when updating the go minor version here, also update the go-channel in snap/snapcraft.yml
 FROM golang:1.19.1-buster as builder
 

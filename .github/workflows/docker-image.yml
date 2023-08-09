@@ -44,7 +44,7 @@ jobs:
       -
         name: Build, test and push
         env:
-          IMAGE_ID: "${{ steps.login-ecr-public.outputs.registry }}/3box/kubo"
+          IMAGE_ID: "${{ steps.login-ecr-public.outputs.registry }}/r5b3e0r5/3box/kubo"
         run: |
           docker buildx build -o type=docker . --file Dockerfile \
             --tag go-ipfs-daemon \

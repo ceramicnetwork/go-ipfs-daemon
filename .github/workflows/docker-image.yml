@@ -29,18 +29,22 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          # Can only use us-east-1 for public repos
+          aws-region: us-east-1
       -
         name: Login to Amazon ECR
-        id: login-ecr
+        id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: 'true'
+          registry-type: public
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       -
         name: Build, test and push
         env:
-          IMAGE_ID: "${{ steps.login-ecr.outputs.registry }}/go-ipfs-debug"
+          IMAGE_ID: "${{ steps.login-ecr-public.outputs.registry }}/3box/kubo"
         run: |
           docker buildx build -o type=docker . --file Dockerfile \
             --tag go-ipfs-daemon \

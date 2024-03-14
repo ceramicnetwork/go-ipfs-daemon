@@ -27,8 +27,13 @@ fi
 ipfs repo migrate
 
 ipfs config Addresses.API "/ip4/0.0.0.0/tcp/$IPFS_API_PORT"
-# Explicitly disable the gateway
-ipfs config --json Addresses.Gateway '[]'
+# Explicitly set the gateway to an empty array to disable it by default
+ipfs config --json Addresses.Gateway "[]"
+if [[ $GATEWAY_ENABLED ]] ; then
+  echo "Enabling IPFS Gateway..."
+  echo $GATEWAY_ENABLED
+  ipfs config --json Addresses.Gateway "[\"/ip4/0.0.0.0/tcp/$IPFS_GATEWAY_PORT\"]"
+fi
 ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/$IPFS_SWARM_TCP_PORT\", \"/ip4/0.0.0.0/tcp/$IPFS_SWARM_WS_PORT/ws\"]"
 ipfs config --json Pubsub.Enabled true
 ipfs config Pubsub.SeenMessagesTTL 10m

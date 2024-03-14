@@ -111,6 +111,9 @@ EXPOSE $IPFS_API_PORT
 # Swarm Websockets; must be exposed publicly when the node is listening using the websocket transport (/ipX/.../tcp/8081/ws).
 ENV IPFS_SWARM_WS_PORT 8081
 EXPOSE $IPFS_SWARM_WS_PORT
+# Gateway; readonly gateway which can be exposed to the public
+ENV IPFS_GATEWAY_PORT 8080
+EXPOSE $IPFS_GATEWAY_PORT
 # Healthcheck Server; can be exposed to services under your control
 ENV IPFS_HEALTHCHECK_PORT 8011
 EXPOSE $IPFS_HEALTHCHECK_PORT
